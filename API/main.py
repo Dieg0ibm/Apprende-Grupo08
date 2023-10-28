@@ -1,7 +1,7 @@
 import openai
 import requests
 
-openai.api_key = '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'
+openai.api_key = ""
 
 def obtener_puntos_clave(texto):
     respuesta = openai.Completion.create(
@@ -25,8 +25,8 @@ while flag:
     print(query)
 
     # Define la URL de la API de Google Custom Search
-    api_key = "AIzaSyBmNVHpXXBxK7cHWopWGKCx632HN3as3M4"
-    search_engine_id = 'b39aece0cb9b74cd3'
+    api_key = ""
+    search_engine_id = ""
 
     # Define la lista de sitios web donde deseas buscar
     lugares_busqueda = "site:linkedin.com OR site:superprof.cl"
