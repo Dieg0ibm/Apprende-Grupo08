@@ -21,9 +21,8 @@ class APIOpenAI:
 class APIGoogleCustomSearch:
     def realizar_busqueda(self, query):
         api_key = ""
-        search_engine_id = ''
-        lugares_busqueda = "site:superprof.cl"
-        # Agregar el parámetro gl para especificar la ubicación en Chile
+        search_engine_id = ""
+        lugares_busqueda = "site:superprof.cl OR site:linkedin.com"
         url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query} {lugares_busqueda}&cr=Cl&gl=cl'
         response = requests.get(url)
 
@@ -68,12 +67,12 @@ class Programa:
                 print(f'Detalles de Contacto: {tallerista.detalles_contacto}')
 
 flag = True
+nombre_miembro = input("Ingrese su nombre: ")
+contacto_miembro = input("Ingrese sus detalles de contacto: ")
+api_openai = APIOpenAI()
+api_custom_search = APIGoogleCustomSearch()
 
 while flag:
-    api_openai = APIOpenAI()
-    api_custom_search = APIGoogleCustomSearch()
-    nombre_miembro = input("Ingrese su nombre: ")
-    contacto_miembro = input("Ingrese sus detalles de contacto: ")
     usuario = UsuarioApprende(nombre_miembro, contacto_miembro)
     programa = Programa(api_openai, api_custom_search)
     descripcion_taller = "quiero que extraigas la necesidad del siguiente texto, simplemente lo que necesita no quiero el para o porque: "
