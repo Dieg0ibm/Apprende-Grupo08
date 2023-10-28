@@ -8,7 +8,7 @@ class Tallerista:
 
 class APIOpenAI:
     def obtener_puntos_clave(self, texto):
-        openai.api_key = "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"
+        openai.api_key = ""
         respuesta = openai.Completion.create(
             engine="text-davinci-003",
             prompt=texto,
@@ -20,8 +20,8 @@ class APIOpenAI:
 
 class APIGoogleCustomSearch:
     def realizar_busqueda(self, query):
-        api_key = "AIzaSyCQluKUBI9QNnZkH61ALj9XMu0jWFNGJb4"
-        search_engine_id = 'b39aece0cb9b74cd3'
+        api_key = ""
+        search_engine_id = ''
         lugares_busqueda = "site:superprof.cl"
         # Agregar el parámetro gl para especificar la ubicación en Chile
         url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query} {lugares_busqueda}&cr=Cl&gl=cl'
