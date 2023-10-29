@@ -21,7 +21,7 @@ class APIOpenAI:
 class APIGoogleCustomSearch:
     def realizar_busqueda(self, query):
         api_key = ""
-        search_engine_id = ""
+        search_engine_id = ''
         lugares_busqueda = "site:superprof.cl OR site:linkedin.com"
         url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query} {lugares_busqueda}&cr=Cl&gl=cl'
         response = requests.get(url)
@@ -46,7 +46,8 @@ class UsuarioApprende:
 
     def ingresar_necesidad(self, descripcion_taller, api_openai, api_custom_search):
         puntos_clave = api_openai.obtener_puntos_clave(descripcion_taller)
-        query = " ".join(puntos_clave)
+        query = " ".join(puntos_clave) + "chile"
+        print(query)
         perfiles_talleristas = api_custom_search.realizar_busqueda(query)
         return perfiles_talleristas
 
@@ -69,13 +70,13 @@ class Programa:
 flag = True
 nombre_miembro = input("Ingrese su nombre: ")
 contacto_miembro = input("Ingrese sus detalles de contacto: ")
-api_openai = APIOpenAI()
-api_custom_search = APIGoogleCustomSearch()
 
 while flag:
+    api_openai = APIOpenAI()
+    api_custom_search = APIGoogleCustomSearch()
     usuario = UsuarioApprende(nombre_miembro, contacto_miembro)
     programa = Programa(api_openai, api_custom_search)
-    descripcion_taller = "quiero que extraigas la necesidad del siguiente texto, simplemente lo que necesita no quiero el para o porque: "
+    descripcion_taller = "quiero que extraigas la persona que necesito del siguiente texto, simplemente quien se necesita no quiero el para o porque y tampoco escribas necesidad: "
     descripcion_taller += input("Ingresar la descripción del taller: ")
     programa.mostrarResultados(usuario, descripcion_taller)
 
