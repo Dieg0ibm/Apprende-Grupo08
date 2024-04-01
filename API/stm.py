@@ -19,45 +19,53 @@ buscar_insumo = st.button("Buscar Insumo")
 ver_historial = st.sidebar.button("Ver Historial")
 borrar_historial = st.sidebar.button("Borrar Historial")
 
+# Añadir condición para verificar si la descripción del taller está vacía
+
 if buscar_tallerista:
-    with st.spinner("Realizando búsqueda de tallerista..."):
-        try:
-            response = requests.post('http://127.0.0.1:5000/search', json={'descripcion_taller': descripcion_taller, 'tipo': 'tallerista'})
-            response.raise_for_status()
-            resultados = response.json().get("resultados", [])
+    if not descripcion_taller:
+        st.warning("Por favor, ingresa una descripción del taller antes de realizar la búsqueda.")
+    else:
+        with st.spinner("Realizando búsqueda de tallerista..."):
+            try:
+                response = requests.post('http://127.0.0.1:5000/search', json={'descripcion_taller': descripcion_taller, 'tipo': 'tallerista'})
+                response.raise_for_status()
+                resultados = response.json().get("resultados", [])
 
-            if resultados:
-                st.header("Resultados de Talleristas: ")
-                response_resultados = requests.post('http://127.0.0.1:5000/resultados', json={'resultados': resultados})
-                response_resultados.raise_for_status()
+                if resultados:
+                    st.header("Resultados de Talleristas: ")
+                    response_resultados = requests.post('http://127.0.0.1:5000/resultados', json={'resultados': resultados})
+                    response_resultados.raise_for_status()
 
-                resultados_organizados = response_resultados.json().get("resultados", [])
+                    resultados_organizados = response_resultados.json().get("resultados", [])
 
-                for enlace in resultados_organizados:
-                    st.write(enlace)
-            else:
-                st.error("No se encontraron resultados de tallerista.")
-        except requests.RequestException as e:
-            st.error(f"Error al realizar la solicitud: {e}")
+                    for enlace in resultados_organizados:
+                        st.write(enlace)
+                else:
+                    st.error("No se encontraron resultados de tallerista.")
+            except requests.RequestException as e:
+                st.error(f"Error al realizar la solicitud: {e}")
 
 if buscar_insumo:
-    with st.spinner("Realizando búsqueda de insumo..."):
-        try:
-            response = requests.post('http://127.0.0.1:5000/search', json={'descripcion_taller': descripcion_taller, 'tipo': 'insumos'})
-            response.raise_for_status()
+    if not descripcion_taller:
+        st.warning("Por favor, ingresa una descripción del taller antes de realizar la búsqueda.")
+    else:
+        with st.spinner("Realizando búsqueda de insumo..."):
+            try:
+                response = requests.post('http://127.0.0.1:5000/search', json={'descripcion_taller': descripcion_taller, 'tipo': 'insumos'})
+                response.raise_for_status()
 
-            resultados = response.json().get("resultados", [])
+                resultados = response.json().get("resultados", [])
 
-            if resultados:
-                st.write("Para realizar el siguiente taller te recomendamos comprar: ")
-                for objeto, enlaces in resultados.items():
-                    st.write(objeto)
-                    for enlace in enlaces:
-                        st.write(enlace)
-            else:
-                st.error("No se encontraron resultados de insumo.")
-        except requests.RequestException as e:
-            st.error(f"Error al realizar la solicitud: {e}")
+                if resultados:
+                    st.write("Para realizar el siguiente taller te recomendamos comprar: ")
+                    for objeto, enlaces in resultados.items():
+                        st.write(objeto)
+                        for enlace in enlaces:
+                            st.write(enlace)
+                else:
+                    st.error("No se encontraron resultados de insumo.")
+            except requests.RequestException as e:
+                st.error(f"Error al realizar la solicitud: {e}")
 
 if ver_historial:
     st.header("Historial")
@@ -86,7 +94,6 @@ if ver_historial:
             
         except requests.RequestException as e:
             st.error(f"Error al realizar la solicitud: {e}")
-            
 
 if borrar_historial:
     with st.spinner("Borrando historial..."):

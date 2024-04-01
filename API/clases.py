@@ -15,11 +15,12 @@ class Historial(db.Model):
 
 class APIOpenAI:
     def obtener_puntos_clave(self, texto, tipo):
-        openai.api_key = ""
+        openai.api_key = ""    #1 clave
+        #openai.api_key =""     #2 clave
         if tipo == "tallerista":
             texto = "Necesito saber que profesión puede tener una persona encargada para dirigir la siguiente actividad: " + texto + ". Cuando lo encuentres escribe el siguiente formato: {profesión} en Chile."
         elif tipo == "insumos":
-            texto = "Necesito saber que insumos serán necesarios para realizar la siguiente actividad: " + texto + ", escribe una lista de 5 objetos con el formato 1- comprar objeto \n, asi sucesivamente"
+            texto = "Necesito saber que insumos serán necesarios para realizar la siguiente actividad: " + texto + ", escribe solo (nada extra) una lista de 5 objetos con el formato 1- comprar objeto \n, asi sucesivamente"
         respuesta = openai.Completion.create(
             engine="text-davinci-003",
             prompt=texto,
@@ -38,6 +39,7 @@ class APIGoogleCustomSearch:
             url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query}{lugares_busqueda}&cr=Cl&gl=cl'
 
         elif tipo == "insumos":
+            lugares_busqueda = "site:amazon.com"
             url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query}'
     
         response = requests.get(url)
@@ -68,9 +70,9 @@ class UsuarioApprende:
             resultados_por_insumo = {}
 
             for i, linea in enumerate(lineas):
-                if linea:
+                if linea and len(linea)>3:
                     enlaces = api_custom_search.realizar_busqueda(linea, tipo)
-                    resultados_por_insumo[linea] = enlaces[:2]
+                    resultados_por_insumo[linea] = enlaces[:1]
 
             print(resultados_por_insumo)
             return resultados_por_insumo
