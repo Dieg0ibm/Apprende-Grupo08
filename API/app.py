@@ -1,8 +1,8 @@
-#app.py
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from clases import UsuarioApprende, APIOpenAI, APIGoogleCustomSearch
+import json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///historial.db'
@@ -20,6 +20,47 @@ class Historial(db.Model):
     descripcion_taller = db.Column(db.String(255))
     tipo = db.Column(db.String(50))
     enlaces_resultados = db.Column(db.Text)
+
+class Propuestas(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_miembro = db.Column(db.String(255))
+    contacto_miembro = db.Column(db.String(255))
+    titulo = db.Column(db.String(255))
+    descripcion = db.Column(db.String(255))
+    duracion = db.Column(db.Integer)
+    sesiones = db.Column(db.Integer)
+    objetivos = db.Column(db.Text)
+
+@app.route('/propuesta_taller', methods=['POST'])
+def recibir_propuesta():
+    data = request.get_json()
+    nueva_propuesta = Propuestas(
+        nombre_miembro=data['nombre_miembro'],
+        contacto_miembro=data['contacto_miembro'],
+        titulo=data['titulo'],
+        descripcion=data['descripcion'],
+        duracion=data['duracion'],
+        sesiones=data['sesiones'],
+        objetivos=data['objetivos']
+    )
+    db.session.add(nueva_propuesta)
+    db.session.commit()
+    return jsonify({"mensaje": "Propuesta de taller recibida y guardada correctamente."})
+
+@app.route('/propuestas', methods=['GET'])
+def get_propuestas():
+    propuestas = Propuestas.query.all()
+    propuestas_data = [{
+        'id': propuesta.id,
+        'nombre_miembro': propuesta.nombre_miembro,
+        'contacto_miembro': propuesta.contacto_miembro,
+        'titulo': propuesta.titulo,
+        'descripcion': propuesta.descripcion,
+        'duracion': propuesta.duracion,
+        'sesiones': propuesta.sesiones,
+        'objetivos': propuesta.objetivos
+    } for propuesta in propuestas]
+    return jsonify({"propuestas": propuestas_data})
 
 class Search(Resource):
     def post(self):

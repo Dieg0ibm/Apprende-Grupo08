@@ -13,9 +13,20 @@ class Historial(db.Model):
     tipo = db.Column(db.String(50))
     enlaces_resultados = db.Column(db.Text)
 
+class Propuestas(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    nombre_miembro = db.Column(db.String(255))
+    contacto_miembro = db.Column(db.String(255))
+    titulo = db.Column(db.String(255))
+    descripcion = db.Column(db.String(255))
+    duracion = db.Column(db.Integer)  
+    sesiones = db.Column(db.Integer)  
+    objetivos = db.Column(db.Text)
+
+
 class APIOpenAI:
     def obtener_puntos_clave(self, texto, tipo):
-        openai.api_key = ""    #1 clave
+        openai.api_key = ""   #1 clave #Ocultamos key porque el repositorio es público
         #openai.api_key =""     #2 clave
         if tipo == "tallerista":
             texto = "Necesito saber que profesión puede tener una persona encargada para dirigir la siguiente actividad: " + texto + ". Cuando lo encuentres escribe el siguiente formato: {profesión} en Chile."
@@ -32,8 +43,8 @@ class APIOpenAI:
 
 class APIGoogleCustomSearch:
     def realizar_busqueda(self, query, tipo):
-        api_key = ""
-        search_engine_id = ''
+        api_key = ""                                #Ocultamos key porque el repositorio es público
+        search_engine_id = ''                       #Ocultamos key porque el repositorio es público
         if tipo == "tallerista":
             lugares_busqueda = "site:superprof.cl OR site:linkedin.com/in"
             url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query}{lugares_busqueda}&cr=Cl&gl=cl'
