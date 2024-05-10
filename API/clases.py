@@ -6,10 +6,14 @@ from models import db, Historial
 class APIOpenAI:
     def obtener_puntos_clave(self, texto, tipo):
 <<<<<<< HEAD
+<<<<<<< HEAD
         openai.api_key =""     #1 clave
 =======
         openai.api_key ="sk-proj-nNdbhlD61jGxUeKA0QFjT3BlbkFJUYjFkInNYV2iC8Caqwpy"     #1 clave
 >>>>>>> dd45d54 (Hito 3(Nueva HU, y tests))
+=======
+        openai.api_key =""     #1 clave
+>>>>>>> 334672a (Borramos las keys)
         if tipo == "tallerista":
             texto = "Necesito saber que profesión puede tener una persona encargada para dirigir la siguiente actividad: " + texto + ". Cuando lo encuentres escribe el siguiente formato: {profesión} en Chile."
         elif tipo == "insumos":
@@ -26,12 +30,17 @@ class APIOpenAI:
 class APIGoogleCustomSearch:
     def realizar_busqueda(self, query, tipo):
 <<<<<<< HEAD
+<<<<<<< HEAD
         api_key = ""
         search_engine_id = ''                     #Ocultamos key porque el repositorio es público
 =======
         api_key = "AIzaSyCQluKUBI9QNnZkH61ALj9XMu0jWFNGJb4"
         search_engine_id = 'b39aece0cb9b74cd3'                     #Ocultamos key porque el repositorio es público
 >>>>>>> dd45d54 (Hito 3(Nueva HU, y tests))
+=======
+        api_key = ""
+        search_engine_id = ''                     #Ocultamos key porque el repositorio es público
+>>>>>>> 334672a (Borramos las keys)
         if tipo == "tallerista":
             lugares_busqueda = "site:superprof.cl OR site:linkedin.com/in"
             url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query}{lugares_busqueda}&cr=Cl&gl=cl'
