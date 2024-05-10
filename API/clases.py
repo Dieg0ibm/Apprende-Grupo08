@@ -1,39 +1,17 @@
 # clases.py
 import openai
 import requests
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-
-class Historial(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre_miembro = db.Column(db.String(255))
-    contacto_miembro = db.Column(db.String(255))
-    descripcion_taller = db.Column(db.String(255))
-    tipo = db.Column(db.String(50))
-    enlaces_resultados = db.Column(db.Text)
-
-class Propuestas(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre_miembro = db.Column(db.String(255))
-    contacto_miembro = db.Column(db.String(255))
-    titulo = db.Column(db.String(255))
-    descripcion = db.Column(db.String(255))
-    duracion = db.Column(db.Integer)  
-    sesiones = db.Column(db.Integer)  
-    objetivos = db.Column(db.Text)
-
+from models import db, Historial
 
 class APIOpenAI:
     def obtener_puntos_clave(self, texto, tipo):
-        openai.api_key = ""   #1 clave #Ocultamos key porque el repositorio es público
-        #openai.api_key =""     #2 clave
+        openai.api_key ="sk-proj-nNdbhlD61jGxUeKA0QFjT3BlbkFJUYjFkInNYV2iC8Caqwpy"     #1 clave
         if tipo == "tallerista":
             texto = "Necesito saber que profesión puede tener una persona encargada para dirigir la siguiente actividad: " + texto + ". Cuando lo encuentres escribe el siguiente formato: {profesión} en Chile."
         elif tipo == "insumos":
             texto = "Necesito saber que insumos serán necesarios para realizar la siguiente actividad: " + texto + ", escribe solo (nada extra) una lista de 5 objetos con el formato 1- comprar objeto \n, asi sucesivamente"
         respuesta = openai.Completion.create(
-            engine="text-davinci-003",
+            engine="gpt-3.5-turbo-instruct",
             prompt=texto,
             max_tokens=100,
             n=1,
@@ -43,8 +21,8 @@ class APIOpenAI:
 
 class APIGoogleCustomSearch:
     def realizar_busqueda(self, query, tipo):
-        api_key = ""                                #Ocultamos key porque el repositorio es público
-        search_engine_id = ''                       #Ocultamos key porque el repositorio es público
+        api_key = "AIzaSyCQluKUBI9QNnZkH61ALj9XMu0jWFNGJb4"
+        search_engine_id = 'b39aece0cb9b74cd3'                     #Ocultamos key porque el repositorio es público
         if tipo == "tallerista":
             lugares_busqueda = "site:superprof.cl OR site:linkedin.com/in"
             url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query}{lugares_busqueda}&cr=Cl&gl=cl'

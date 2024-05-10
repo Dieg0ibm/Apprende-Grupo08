@@ -1,39 +1,27 @@
+#app.py
+
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
-from flask_sqlalchemy import SQLAlchemy
-from clases import UsuarioApprende, APIOpenAI, APIGoogleCustomSearch
-import json
+from models import db, Historial, Propuestas
+from clases import APIOpenAI, APIGoogleCustomSearch, UsuarioApprende
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///historial.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 api = Api(app)
-db = SQLAlchemy(app)
+db.init_app(app)
 
 openai_api = APIOpenAI()
 custom_search_api = APIGoogleCustomSearch()
 
-class Historial(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre_miembro = db.Column(db.String(255))
-    contacto_miembro = db.Column(db.String(255))
-    descripcion_taller = db.Column(db.String(255))
-    tipo = db.Column(db.String(50))
-    enlaces_resultados = db.Column(db.Text)
-
-class Propuestas(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    nombre_miembro = db.Column(db.String(255))
-    contacto_miembro = db.Column(db.String(255))
-    titulo = db.Column(db.String(255))
-    descripcion = db.Column(db.String(255))
-    duracion = db.Column(db.Integer)
-    sesiones = db.Column(db.Integer)
-    objetivos = db.Column(db.Text)
-
 @app.route('/propuesta_taller', methods=['POST'])
 def recibir_propuesta():
     data = request.get_json()
+
+    # Verificar si algún atributo está vacío
+    if any(value == "" or value is None for value in data.values()):
+        return jsonify({"error": "La propuesta de taller no cumple con el formato esperado."})
+    
     nueva_propuesta = Propuestas(
         nombre_miembro=data['nombre_miembro'],
         contacto_miembro=data['contacto_miembro'],
@@ -41,11 +29,14 @@ def recibir_propuesta():
         descripcion=data['descripcion'],
         duracion=data['duracion'],
         sesiones=data['sesiones'],
-        objetivos=data['objetivos']
+        objetivos=data['objetivos'],
+        estado=data['estado']
     )
+
     db.session.add(nueva_propuesta)
     db.session.commit()
-    return jsonify({"mensaje": "Propuesta de taller recibida y guardada correctamente."})
+    return jsonify({"propuesta": data})
+
 
 @app.route('/propuestas', methods=['GET'])
 def get_propuestas():
@@ -58,7 +49,8 @@ def get_propuestas():
         'descripcion': propuesta.descripcion,
         'duracion': propuesta.duracion,
         'sesiones': propuesta.sesiones,
-        'objetivos': propuesta.objetivos
+        'objetivos': propuesta.objetivos,
+        'estado':propuesta.estado
     } for propuesta in propuestas]
     return jsonify({"propuestas": propuestas_data})
 
@@ -71,8 +63,9 @@ class Search(Resource):
             descripcion_taller = data.get('descripcion_taller')
             tipo = data.get('tipo')
 
-            usuario = UsuarioApprende("Vicente", "vicente.romero@usm.cl")
+            usuario = UsuarioApprende(nombre_miembro, contacto_miembro)
             enlaces_resultados = usuario.ingresar_necesidad(descripcion_taller, openai_api, custom_search_api, tipo)
+            print(enlaces_resultados)
 
             if not enlaces_resultados:
                 return jsonify({"mensaje": f"No se encontraron resultados de {tipo}."}), 404
@@ -120,7 +113,6 @@ class HistorialResource(Resource):
                 'tipo': registro.tipo,
                 'enlaces_resultados': registro.enlaces_resultados
             } for registro in historial]
-
             return jsonify({"historial": historial_data})
         except Exception as e:
             print(f"Error al obtener el historial: {str(e)}")
@@ -147,6 +139,49 @@ class BorrarHistorial(Resource):
             return jsonify({'error': 'Ocurrió un error al intentar borrar el historial.'}), 500
 
 api.add_resource(BorrarHistorial, '/borrar_historial')
+
+class BorrarPropuesta(Resource):
+    def delete(self, propuesta_id):
+        try:
+            propuesta = Propuestas.query.get(propuesta_id)
+            if not propuesta:
+                return jsonify({"error": "La propuesta no existe."}), 404
+
+            db.session.delete(propuesta)
+            db.session.commit()
+            return jsonify({"mensaje": "Propuesta eliminada correctamente."})
+        except Exception as e:
+            print(f"Error al eliminar la propuesta: {str(e)}")
+            return jsonify({'error': 'Ocurrió un error al eliminar la propuesta.'}), 500
+
+api.add_resource(BorrarPropuesta, '/propuestas/<int:propuesta_id>')
+
+@app.route('/propuestas/<int:propuesta_id>', methods=['PUT'])
+def actualizar_estado_propuesta(propuesta_id):
+    try:
+        data = request.get_json()
+        nuevo_estado = data.get('estado')
+        
+        if nuevo_estado is None:
+            return jsonify({"error": "Se requiere el parámetro 'estado' para actualizar la propuesta."}), 400
+        
+        # Obtener la propuesta por su ID
+        propuesta = Propuestas.query.get(propuesta_id)
+        
+        if not propuesta:
+            return jsonify({"error": "La propuesta no existe."}), 404
+        
+        # Actualizar el estado de la propuesta
+        propuesta.estado = nuevo_estado
+        db.session.commit()
+        
+        return jsonify({"mensaje": "Estado de propuesta actualizado correctamente."}), 200
+    
+    except Exception as e:
+        print(f"Error al actualizar la propuesta: {str(e)}")
+        return jsonify({'error': 'Ocurrió un error al actualizar la propuesta.'}), 500
+    
+
 
 @app.route('/')
 def index():
