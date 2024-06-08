@@ -36,7 +36,9 @@ if selected_tab == "Buscar Tallerista":
                         response_resultados.raise_for_status()
 
                         resultados_organizados = response_resultados.json().get("resultados", [])
-
+                        st.write(resultados_organizados)
+                        if resultados_organizados == []:
+                            st.error("CHAP")
                         for enlace in resultados_organizados:
                             st.write(enlace)
                     else:

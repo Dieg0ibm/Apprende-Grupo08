@@ -7,9 +7,9 @@ class APIOpenAI:
     def obtener_puntos_clave(self, texto, tipo):
         openai.api_key =""     
         if tipo == "tallerista":
-            texto = "Necesito saber que profesión puede tener una persona encargada para dirigir la siguiente actividad: " + texto + ". Cuando lo encuentres escribe el siguiente formato: {profesión} en Chile."
+            texto = "Necesito saber que profesión puede tener una persona encargada para dirigir la siguiente actividad: " + texto + ". Cuando lo encuentres escribe el siguiente formato: {profesión} en Chile. En caso de que lo escrito no tenga un sentido lógico o no tenga relación con un taller, escribe el siguiente mensaje: Texto inválido."
         elif tipo == "insumos":
-            texto = "Necesito saber que insumos serán necesarios para realizar la siguiente actividad: " + texto + ", escribe solo (nada extra) una lista de 5 objetos con el formato 1- comprar objeto \n, asi sucesivamente"
+            texto = "Necesito saber que insumos serán necesarios para realizar la siguiente actividad: " + texto + ", escribe solo (nada extra) una lista de 5 objetos con el formato 1- comprar objeto \n, asi sucesivamente, en caso de que lo escrito no tenga un sentido lógico o no tenga relación con un taller, escribe el siguiente mensaje: texto invalido"
         respuesta = openai.Completion.create(
             engine="gpt-3.5-turbo-instruct",
             prompt=texto,
@@ -49,8 +49,8 @@ class UsuarioApprende:
     def ingresar_necesidad(self, descripcion_taller, api_openai, api_custom_search, tipo):
         puntos_clave = api_openai.obtener_puntos_clave(descripcion_taller, tipo)
         query = " ".join(puntos_clave)
-        print(query)
-        
+        if "INVÁLIDO" in query.upper():
+            return []
         if tipo == "tallerista":
             enlaces = api_custom_search.realizar_busqueda(query, tipo)
             return enlaces
@@ -62,8 +62,6 @@ class UsuarioApprende:
                 if linea and len(linea)>3:
                     enlaces = api_custom_search.realizar_busqueda(linea, tipo)
                     resultados_por_insumo[linea] = enlaces[:1]
-
-            print(resultados_por_insumo)
             return resultados_por_insumo
         
     def vaciar_base_de_datos(self):

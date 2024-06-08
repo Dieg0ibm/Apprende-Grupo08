@@ -66,9 +66,8 @@ class Search(Resource):
             usuario = UsuarioApprende(nombre_miembro, contacto_miembro)
             enlaces_resultados = usuario.ingresar_necesidad(descripcion_taller, openai_api, custom_search_api, tipo)
             print(enlaces_resultados)
-
-            if not enlaces_resultados:
-                return jsonify({"mensaje": f"No se encontraron resultados de {tipo}."}), 404
+            if enlaces_resultados == []:
+                return jsonify({"resultados": enlaces_resultados})
 
             nuevo_registro = Historial(
                 nombre_miembro=nombre_miembro,
