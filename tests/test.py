@@ -114,14 +114,15 @@ class BusquedaTest(unittest.TestCase):
         url = f'{self.base_url}/search'
         response = requests.post(url, json={'descripcion_taller': self.busqueda_invalida['descripcion'], 'tipo': self.busqueda_invalida['tipo']})
         response_data = response.json()
-
-        # Verificar si la respuesta tiene el atributo "resultados"
         self.assertIn("resultados", response_data)
-
+        print(response_data)
+        # Verificar si la clave "resultados" está en los datos de respuesta
         if "resultados" in response_data:
-            # Verificar si los resultados no están vacíos
             resultados = response_data["resultados"]
+            # Verificar si los resultados están vacíos
             self.assertFalse(resultados, "La búsqueda debería devolver resultados vacíos.")
+        else:
+            print("La clave 'resultados' no se encontró en los datos de respuesta.")
 
 
 if __name__ == '__main__':
