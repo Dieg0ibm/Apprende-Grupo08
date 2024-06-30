@@ -1,8 +1,7 @@
 #app.py
-
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
-from models import db, Historial, Propuestas
+from models import db, Historial, Propuestas, Usuarios
 from clases import APIOpenAI, APIGoogleCustomSearch, UsuarioApprende
 
 app = Flask(__name__)
@@ -13,6 +12,58 @@ db.init_app(app)
 
 openai_api = APIOpenAI()
 custom_search_api = APIGoogleCustomSearch()
+
+############################# Registro #############################
+@app.route('/recibir_registro', methods=['POST'])
+def recibir_registro():
+    data = request.get_json()
+    # Verificar si algún atributo está vacío
+    if any(value == "" or value is None for value in data.values()):
+        return jsonify({"error": "La propuesta de taller no cumple con el formato esperado."})
+    nuevo_registro = Usuarios(
+        email = data['email'],
+        nombre = data['nombre'],
+        password = data['password'],
+        rol = data['rol'],
+        contacto = data['contacto']
+    )
+    db.session.add(nuevo_registro)
+    db.session.commit()
+    return jsonify({"registro": data})
+
+############################# Login #############################
+
+@app.route('/verificar_login', methods=['POST'])
+def verificar_login():
+    data = request.get_json()
+    email = data.get('email')
+    password = data.get('password')
+    # Verificar si el usuario existe en la base de datos y la contraseña es correcta
+    usuario = Usuarios.query.filter_by(email=email).first()
+    if usuario and usuario.password == password:
+        return jsonify({"message": "Autenticación exitosa."}), 200
+    else:
+        return jsonify({"error": "Credenciales incorrectas."}), 401
+
+@app.route('/obtener_campos_usuario', methods=['GET']) 
+def obtener_campos_usuario():
+    data = request.get_json()
+    email = data.get('email')
+    usuario = Usuarios.query.filter_by(email=email).first()
+    print(usuario)
+    if usuario:
+        usuario_data = {
+            'email': usuario.email,
+            'rol': usuario.rol,
+            'nombre': usuario.nombre,
+            'contacto': usuario.contacto
+        }
+        return jsonify(usuario_data)
+    else:
+        return jsonify({'error': 'Usuario no encontrado'})
+
+
+############################# Propuestas #############################
 
 @app.route('/propuesta_taller', methods=['POST'])
 def recibir_propuesta():
@@ -53,6 +104,8 @@ def get_propuestas():
         'estado':propuesta.estado
     } for propuesta in propuestas]
     return jsonify({"propuestas": propuestas_data})
+
+############################# Búsqueda #############################
 
 class Search(Resource):
     def post(self):
@@ -100,6 +153,8 @@ class Resultados(Resource):
 
 api.add_resource(Resultados, '/resultados')
 
+############################# Historial busqueda #############################
+
 class HistorialResource(Resource):
     def get(self):
         try:
@@ -138,6 +193,8 @@ class BorrarHistorial(Resource):
             return jsonify({'error': 'Ocurrió un error al intentar borrar el historial.'}), 500
 
 api.add_resource(BorrarHistorial, '/borrar_historial')
+
+############################# Historial Propuestas #############################
 
 class BorrarPropuesta(Resource):
     def delete(self, propuesta_id):
@@ -179,8 +236,8 @@ def actualizar_estado_propuesta(propuesta_id):
     except Exception as e:
         print(f"Error al actualizar la propuesta: {str(e)}")
         return jsonify({'error': 'Ocurrió un error al actualizar la propuesta.'}), 500
-    
 
+#######################################################################################
 
 @app.route('/')
 def index():

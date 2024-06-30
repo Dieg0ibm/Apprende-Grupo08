@@ -1,2 +1,1 @@
-
-openai_api = APIOpenAI()
+'id': registro.id,
