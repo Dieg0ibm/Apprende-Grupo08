@@ -1,6 +1,8 @@
 import requests
 import streamlit as st
 
+buscar_tallerista = "Buscar Tallerista"
+
 # Configuración de la página
 st.set_page_config(
     page_title="Apprende",
@@ -85,16 +87,15 @@ if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
 else:
     datos_usuario = datos_sesion(st.session_state["email"])
     st.image("logo.png", width=150)
-
     # Crear las pestañas
-    tabs = ["Buscar Tallerista", "Buscar Insumo", "Ver Historial de busquedas", "Enviar Propuesta", "Propuestas Pendientes", "Propuestas Aprobadas"]
+    tabs = [buscar_tallerista, "Buscar Insumo", "Ver Historial de busquedas", "Enviar Propuesta", "Propuestas Pendientes", "Propuestas Aprobadas"]
     selected_tab = st.sidebar.selectbox("Selecciona una opción", tabs)
 
-    if selected_tab == "Buscar Tallerista":
+    if selected_tab == buscar_tallerista:
         if datos_usuario['rol'] == 'Ejecutivo':
-            st.title("Buscar Tallerista")
+            st.title(buscar_tallerista)
             descripcion_taller = st.text_area("Descripción del Taller")
-            buscar_tallerista = st.button("Buscar Tallerista")
+            buscar_tallerista = st.button(buscar_tallerista)
             
             if buscar_tallerista:
                 if datos_usuario['rol'] == 'Ejecutivo':
