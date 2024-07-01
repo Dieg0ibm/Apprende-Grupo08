@@ -2,11 +2,12 @@ import requests
 import streamlit as st
 
 buscar_tallerista = "Buscar Tallerista"
+logo = "logo.png"
 
 # Configuración de la página
 st.set_page_config(
     page_title="Apprende",
-    page_icon="logo.png",
+    page_icon=logo,
     layout="wide",
 )
 
@@ -76,7 +77,7 @@ def datos_sesion(email):
 
 # Verificar si el usuario está registrado
 if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
-    st.image("logo.png", width=150)
+    st.image(logo, width=150)
     st.title("Bienvenidos a la plataforma virtual de Apprende")
     tabs = ["Iniciar sesión","Registrarse"]
     opcion = st.sidebar.selectbox("Seleccionar acción",tabs)
@@ -86,7 +87,7 @@ if 'logged_in' not in st.session_state or not st.session_state['logged_in']:
         mostrar_registro()
 else:
     datos_usuario = datos_sesion(st.session_state["email"])
-    st.image("logo.png", width=150)
+    st.image(logo, width=150)
     # Crear las pestañas
     tabs = [buscar_tallerista, "Buscar Insumo", "Ver Historial de busquedas", "Enviar Propuesta", "Propuestas Pendientes", "Propuestas Aprobadas"]
     selected_tab = st.sidebar.selectbox("Selecciona una opción", tabs)
