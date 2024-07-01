@@ -5,7 +5,7 @@ from models import db, Historial
 
 class APIOpenAI:
     def obtener_puntos_clave(self, texto, tipo):
-        openai.api_key =""     
+        #openai.api_key =   
         if tipo == "tallerista":
             texto = "Necesito saber que profesión puede tener una persona encargada para dirigir la siguiente actividad: " + texto + ". Cuando lo encuentres escribe el siguiente formato: {profesión} en Chile. En caso de que lo escrito no tenga un sentido lógico o no tenga relación con un taller, escribe el siguiente mensaje: Texto inválido."
         elif tipo == "insumos":
@@ -21,14 +21,13 @@ class APIOpenAI:
 
 class APIGoogleCustomSearch:
     def realizar_busqueda(self, query, tipo):
-        api_key = ""
-        search_engine_id = ''
+        #api_key = 
+        #search_engine_id = 
         if tipo == "tallerista":
             lugares_busqueda = "site:superprof.cl OR site:linkedin.com/in"
             url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query}{lugares_busqueda}&cr=Cl&gl=cl'
 
         elif tipo == "insumos":
-            lugares_busqueda = "site:amazon.com"
             url = f'https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={query}'
     
         response = requests.get(url)
